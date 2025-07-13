@@ -7,8 +7,13 @@ export default function Stories() {
 
   useEffect(() => {
     getStories()
-      .then(setStories)
-      .catch((err) => setError(err.message));
+      .then((data) => {
+        setStories(data.items || []);
+      })
+      .catch((err) => {
+        console.error("Error loading stories:", err);
+        setError(err.message || "Грешка при зареждане на истории");
+      });
   }, []);
 
   if (error) return <p className="text-red-500">Грешка: {error}</p>;
@@ -22,7 +27,10 @@ export default function Stories() {
             key={story.id}
             className="p-2 bg-gray-100 rounded dark:bg-gray-800"
           >
-            {story.title}
+            <h2 className="font-semibold">{story.title}</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {story.description}
+            </p>
           </li>
         ))}
       </ul>

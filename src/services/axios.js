@@ -1,15 +1,13 @@
 import axios from "axios";
 
-// Създаваме инстанция на axios
 const api = axios.create({
   baseURL: "http://localhost:5249",
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: false, // Сложи true само ако бекендът използва cookies (в твоя случай – false е правилно)
+  withCredentials: false,
 });
 
-// Създаваме store за достъп до auth state от AuthContext
 let store = {
   accessToken: null,
   refreshToken: null,
@@ -17,7 +15,6 @@ let store = {
   logout: null,
 };
 
-// Позволява ни да регистрираме стойностите от AuthContext
 export const setAuthStore = ({
   accessToken,
   refreshToken,
@@ -27,7 +24,6 @@ export const setAuthStore = ({
   store = { accessToken, refreshToken, refreshAccessToken, logout };
 };
 
-// Интерцептор за response – хваща 401 и опитва автоматично обновяване
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -47,7 +43,7 @@ api.interceptors.response.use(
         originalRequest.headers[
           "Authorization"
         ] = `Bearer ${store.accessToken}`;
-        return api(originalRequest); // retry заявката
+        return api(originalRequest);
       } else {
         store.logout?.();
       }

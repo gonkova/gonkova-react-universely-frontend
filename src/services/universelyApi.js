@@ -1,11 +1,14 @@
-import apiClient from "./apiClient";
+// src/services/universelyApi.js
+import apiClient from "./apiClient"; // 👈 трябва да е default import
 
-// Пример: взимане на всички истории
-export function getStories() {
-  return apiClient.get("/stories").then((res) => res.data);
+export function getStories(page = 1, pageSize = 10) {
+  return apiClient
+    .get("/stories", {
+      params: { Page: page, PageSize: pageSize },
+    })
+    .then((res) => res.data);
 }
 
-// Пример: взимане на пасажи от история по ID
 export function getPassages(storyId, pageSize = 10) {
   return apiClient
     .get(`/stories/${storyId}/passages`, {

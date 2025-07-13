@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import api, { setAuthStore } from "../services/axios";
+import apiClient from "../services/apiClient";
 import { parseJwt } from "../utils/jwt";
 
 export const AuthContext = createContext();
@@ -14,13 +14,14 @@ export function AuthProvider({ children }) {
 
   const user = accessToken ? parseJwt(accessToken) : null;
 
-  // Setting Authorization header for axios
   useEffect(() => {
     if (accessToken) {
-      api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      apiClient.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${accessToken}`;
       localStorage.setItem("accessToken", accessToken);
     } else {
-      delete api.defaults.headers.common["Authorization"];
+      delete apiClient.defaults.headers.common["Authorization"];
       localStorage.removeItem("accessToken");
     }
   }, [accessToken]);
@@ -35,7 +36,7 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
-      const res = await api.post("/users/login", { email, password });
+      const res = await apiClient.post("/users/login", { email, password });
       setAccessToken(res.data.accessToken);
       setRefreshToken(res.data.refreshToken);
       return { success: true };
@@ -51,7 +52,7 @@ export function AuthProvider({ children }) {
     try {
       if (!refreshToken) throw new Error("Липсва refreshToken");
 
-      const res = await api.post(
+      const res = await apiClient.post(
         "/users/refresh",
         { refreshToken },
         {
@@ -72,19 +73,6 @@ export function AuthProvider({ children }) {
     setAccessToken(null);
     setRefreshToken(null);
   }
-
-  useEffect(() => {
-    setAuthStore({ accessToken, refreshToken, refreshAccessToken, logout });
-  }, [accessToken, refreshToken]);
-
-  useEffect(() => {
-    const tryRefresh = async () => {
-      if (!accessToken && refreshToken) {
-        await refreshAccessToken();
-      }
-    };
-    tryRefresh();
-  }, []);
 
   return (
     <AuthContext.Provider
