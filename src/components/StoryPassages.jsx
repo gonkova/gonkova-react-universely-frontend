@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-import { getPassages } from "../services/protectedApi";
+import { getPassages } from "../services/api"; // ✅ Коригиран import
 
 export default function StoryPassages({ storyId }) {
   const [passages, setPassages] = useState([]);
 
   useEffect(() => {
     const fetchPassages = async () => {
-      const data = await getPassages(storyId, 1, 5);
-      setPassages(data);
+      try {
+        const data = await getPassages(storyId, 1, 5);
+        setPassages(data); // ако е [{...}, {...}], това е ок
+      } catch (err) {
+        console.error("Грешка при зареждане на пасажи:", err);
+      }
     };
     fetchPassages();
   }, [storyId]);

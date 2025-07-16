@@ -1,4 +1,3 @@
-// pages/Profile.jsx
 import UserProfileCard from "../components/UserProfileCard";
 
 export default function Profile() {

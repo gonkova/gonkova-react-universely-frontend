@@ -1,5 +1,9 @@
 import React, { createContext, useState, useEffect } from "react";
-import apiClient from "../services/apiClient";
+import {
+  login as loginApi,
+  refreshTokenRequest,
+  setAuthStore,
+} from "../services/api";
 import { parseJwt } from "../utils/jwt";
 
 export const AuthContext = createContext();
@@ -16,12 +20,8 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (accessToken) {
-      apiClient.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${accessToken}`;
       localStorage.setItem("accessToken", accessToken);
     } else {
-      delete apiClient.defaults.headers.common["Authorization"];
       localStorage.removeItem("accessToken");
     }
   }, [accessToken]);
@@ -36,9 +36,9 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
-      const res = await apiClient.post("/users/login", { email, password });
-      setAccessToken(res.data.accessToken);
-      setRefreshToken(res.data.refreshToken);
+      const data = await loginApi(email, password);
+      setAccessToken(data.accessToken);
+      setRefreshToken(data.refreshToken);
       return { success: true };
     } catch (error) {
       return {
@@ -51,16 +51,8 @@ export function AuthProvider({ children }) {
   async function refreshAccessToken() {
     try {
       if (!refreshToken) throw new Error("Липсва refreshToken");
-
-      const res = await apiClient.post(
-        "/users/refresh",
-        { refreshToken },
-        {
-          headers: { Authorization: `Bearer ${refreshToken}` },
-        }
-      );
-
-      setAccessToken(res.data.accessToken);
+      const data = await refreshTokenRequest(refreshToken);
+      setAccessToken(data.accessToken);
       return true;
     } catch (error) {
       console.error("Refresh token error", error);
@@ -73,6 +65,16 @@ export function AuthProvider({ children }) {
     setAccessToken(null);
     setRefreshToken(null);
   }
+
+  // Настройка на store за axios
+  useEffect(() => {
+    setAuthStore({
+      accessToken,
+      refreshToken,
+      refreshAccessToken,
+      logout,
+    });
+  }, [accessToken, refreshToken]);
 
   return (
     <AuthContext.Provider

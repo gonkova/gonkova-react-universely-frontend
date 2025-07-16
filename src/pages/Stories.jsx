@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { getStories } from "../services/universelyApi";
+import { getStories } from "../services/api";
 
 export default function Stories() {
   const [stories, setStories] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getStories()
-      .then((data) => {
+    async function fetchData() {
+      try {
+        const data = await getStories();
         setStories(data.items || []);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error loading stories:", err);
         setError(err.message || "Грешка при зареждане на истории");
-      });
+      }
+    }
+
+    fetchData();
   }, []);
 
   if (error) return <p className="text-red-500">Грешка: {error}</p>;

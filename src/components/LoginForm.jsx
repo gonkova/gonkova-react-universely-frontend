@@ -1,4 +1,3 @@
-// components/LoginForm.jsx
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -20,18 +19,13 @@ export default function LoginForm() {
     setError("");
     setLoading(true);
 
-    console.log("Submitting login...");
-
     const result = await login(email, password);
-
-    console.log("Login result:", result);
-
     setLoading(false);
 
     if (result.success) {
       setEmail("");
       setPassword("");
-      navigate("/profile");
+      navigate("/profile", { replace: true });
     } else {
       setError(result.error);
     }
