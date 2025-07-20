@@ -69,6 +69,14 @@ export default function LoginForm() {
           </button>
         </div>
       </div>
+      <div className="text-right">
+        <a
+          href="/forgot-password"
+          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+        >
+          Забравена парола?
+        </a>
+      </div>
 
       <Button type="submit" disabled={loading}>
         {loading ? "Влизане..." : "Вход"}

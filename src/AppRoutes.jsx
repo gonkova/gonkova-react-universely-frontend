@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Register from "./pages/Register";
+import ForgotPasswordForm from "./components/ForgotPasswordForm";
+import ResetPasswordForm from "./components/ResetPasswordForm";
 
 export default function AppRoutes() {
   return (
@@ -62,6 +64,23 @@ export default function AppRoutes() {
         element={
           <Layout>
             <NotFound />
+          </Layout>
+        }
+      />
+
+      <Route
+        path="/forgot-password"
+        element={
+          <Layout>
+            <ForgotPasswordForm />
+          </Layout>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <Layout>
+            <ResetPasswordForm />
           </Layout>
         }
       />

@@ -75,6 +75,18 @@ export function refreshTokenRequest(refreshToken) {
     .then((res) => res.data);
 }
 
+export function forgotPassword(email) {
+  return api.post("/users/forgot-password", { email });
+}
+
+export function resetPassword(email, encodedToken, newPassword) {
+  return api.post("/users/reset-password", {
+    email,
+    encodedToken,
+    newPassword,
+  });
+}
+
 export function getStories(page = 1, pageSize = 10) {
   return api
     .get("/stories", { params: { Page: page, PageSize: pageSize } })
