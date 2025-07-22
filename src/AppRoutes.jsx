@@ -10,80 +10,36 @@ import Register from "./pages/Register";
 import ForgotPasswordForm from "./components/ForgotPasswordForm";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 
+const publicRoutes = [
+  { path: "/", element: <Home /> },
+  { path: "/login", element: <Login /> },
+  { path: "/register", element: <Register /> },
+  { path: "/stories", element: <Stories /> },
+  { path: "/forgot-password", element: <ForgotPasswordForm /> },
+  { path: "/reset-password", element: <ResetPasswordForm /> },
+  { path: "*", element: <NotFound /> },
+];
+
+const protectedRoutes = [{ path: "/profile", element: <Profile /> }];
+
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route
-        path="/register"
-        element={
-          <Layout>
-            <Register />
-          </Layout>
-        }
-      />
-      <Route
-        path="/login"
-        element={
-          <Layout>
-            <Login />
-          </Layout>
-        }
-      />
+      {publicRoutes.map(({ path, element }) => (
+        <Route key={path} path={path} element={<Layout>{element}</Layout>} />
+      ))}
 
-      <Route
-        path="/"
-        element={
-          <Layout>
-            <Home />
-          </Layout>
-        }
-      />
-
-      <Route
-        path="/stories"
-        element={
-          <Layout>
-            <Stories />
-          </Layout>
-        }
-      />
-
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Profile />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="*"
-        element={
-          <Layout>
-            <NotFound />
-          </Layout>
-        }
-      />
-
-      <Route
-        path="/forgot-password"
-        element={
-          <Layout>
-            <ForgotPasswordForm />
-          </Layout>
-        }
-      />
-      <Route
-        path="/reset-password"
-        element={
-          <Layout>
-            <ResetPasswordForm />
-          </Layout>
-        }
-      />
+      {protectedRoutes.map(({ path, element }) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <ProtectedRoute>
+              <Layout>{element}</Layout>
+            </ProtectedRoute>
+          }
+        />
+      ))}
     </Routes>
   );
 }

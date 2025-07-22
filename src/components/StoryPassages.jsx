@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getPassages } from "../services/api"; // ✅ Коригиран import
+import { getPassages } from "../services/api";
 
 export default function StoryPassages({ storyId }) {
   const [passages, setPassages] = useState([]);
@@ -8,7 +8,7 @@ export default function StoryPassages({ storyId }) {
     const fetchPassages = async () => {
       try {
         const data = await getPassages(storyId, 1, 5);
-        setPassages(data); // ако е [{...}, {...}], това е ок
+        setPassages(data);
       } catch (err) {
         console.error("Грешка при зареждане на пасажи:", err);
       }

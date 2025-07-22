@@ -9,7 +9,7 @@ export default function StoryList({ onSelectStory }) {
     const fetchStories = async () => {
       try {
         const data = await getStories();
-        setStories(data.items || []); // ✅ безопасно извличане
+        setStories(data.items || []);
       } catch (err) {
         setError("Грешка при зареждане на историите");
         console.error(err);

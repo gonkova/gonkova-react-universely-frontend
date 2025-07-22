@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { resetPassword } from "../services/api";
 
 export default function ResetPasswordForm() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -65,7 +66,10 @@ export default function ResetPasswordForm() {
       )}
 
       <div>
-        <label className="block mb-1 text-sm">New password</label>
+        <label className="block mb-1 text-sm">
+          New password (min. 6 characters, at least 1 uppercase letter, 1 digit,
+          1 special character)
+        </label>
         <input
           type="password"
           value={newPassword}

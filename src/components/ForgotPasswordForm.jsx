@@ -8,20 +8,30 @@ export default function ForgotPasswordForm() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setEmail("");
+
+    if (!validateEmail(email)) {
+      setError("⚠️ Please enter a valid email address.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await forgotPassword(email);
-      setMessage("✅ A password reset email has been sent.");
+      setMessage("✅ If this email exists, a reset link has been sent.");
     } catch (err) {
       console.error("❌ Forgot password error:", err);
-      setError(
-        "⚠️ Failed to send reset email. Please check the email address and try again."
-      );
+      setError("⚠️ Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -53,6 +63,7 @@ export default function ForgotPasswordForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoComplete="email"
           className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
         />
       </div>

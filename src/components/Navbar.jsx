@@ -6,9 +6,9 @@ import Button from "./Button";
 import { Menu, X } from "lucide-react";
 
 const navItems = [
-  { name: "Начало", path: "/" },
-  { name: "Истории", path: "/stories" },
-  { name: "Профил", path: "/profile" },
+  { name: "Home", path: "/" },
+  { name: "Stories", path: "/stories" },
+  { name: "Profile", path: "/profile" },
 ];
 
 export default function Navbar() {
@@ -44,14 +44,14 @@ export default function Navbar() {
 
           {accessToken ? (
             <Button onClick={handleLogout} variant="secondary">
-              Изход
+              Log out
             </Button>
           ) : (
             <Link
               to="/login"
               className="text-gray-900 dark:text-white hover:underline"
             >
-              Вход
+              Login
             </Link>
           )}
 
@@ -60,7 +60,7 @@ export default function Navbar() {
           </Button>
         </nav>
 
-        {/* Мобилен бутон */}
+        {/* Mobile button */}
         <button
           className="md:hidden text-gray-900 dark:text-white"
           onClick={() => setOpen(!open)}
@@ -86,7 +86,7 @@ export default function Navbar() {
 
           {accessToken ? (
             <Button onClick={handleLogout} variant="secondary">
-              Изход
+              Log out
             </Button>
           ) : (
             <Link
@@ -94,12 +94,12 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="block text-gray-900 dark:text-white hover:underline"
             >
-              Вход
+              Login
             </Link>
           )}
 
           <Button onClick={toggleTheme}>
-            {theme === "dark" ? "☀️ Светла тема" : "🌙 Тъмна тема"}
+            {theme === "dark" ? "☀️ Light Theme" : "🌙 Dark Theme"}
           </Button>
         </div>
       )}

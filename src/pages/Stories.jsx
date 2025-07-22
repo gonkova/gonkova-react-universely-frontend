@@ -12,18 +12,18 @@ export default function Stories() {
         setStories(data.items || []);
       } catch (err) {
         console.error("Error loading stories:", err);
-        setError(err.message || "Грешка при зареждане на истории");
+        setError(err.message || "Error loading stories");
       }
     }
 
     fetchData();
   }, []);
 
-  if (error) return <p className="text-red-500">Грешка: {error}</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Истории</h1>
+      <h1 className="text-2xl font-bold mb-4">Stories</h1>
       <ul className="space-y-2">
         {stories.map((story) => (
           <li
