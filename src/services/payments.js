@@ -28,6 +28,7 @@ export async function openBillingPortal(accessToken) {
   try {
     const response = await api.post(
       "/payments/billing-portal",
+      {},
 
       {
         headers: {

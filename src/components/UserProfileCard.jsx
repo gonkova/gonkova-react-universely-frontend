@@ -6,13 +6,13 @@ import { openBillingPortal } from "../services/payments";
 
 export default function UserProfileCard() {
   const { user, accessToken, logout } = useContext(AuthContext);
-  openBillingPortal(accessToken, user.stripeCustomerId);
 
   if (!user) return <p className="text-center mt-4">Loading...</p>;
   const handleBillingClick = async () => {
     try {
-      const { url } = await openBillingPortal(accessToken); // ← подаваме токен тук
-      if (url) window.location.href = url;
+      const { billingPortalSessionUrl } = await openBillingPortal(accessToken);
+      if (billingPortalSessionUrl)
+        window.location.href = billingPortalSessionUrl;
     } catch (err) {
       console.error("❌ Грешка при заявка към billing-portal:", err);
       console.log("accessToken:", accessToken);
