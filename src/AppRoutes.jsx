@@ -3,6 +3,8 @@ import Home from "./pages/Home";
 import Stories from "./pages/Stories";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Success from "./pages/Success";
+import Cancel from "./pages/Cancel";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
@@ -17,6 +19,8 @@ const publicRoutes = [
   { path: "/stories", element: <Stories /> },
   { path: "/forgot-password", element: <ForgotPasswordForm /> },
   { path: "/reset-password", element: <ResetPasswordForm /> },
+  { path: "/success", element: <Success /> },
+  { path: "/cancel", element: <Cancel /> },
   { path: "*", element: <NotFound /> },
 ];
 

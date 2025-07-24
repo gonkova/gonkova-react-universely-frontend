@@ -1,11 +1,25 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { LogOut, User } from "lucide-react";
+import SubscribeButton from "../components/SubscribeButton";
+import { openBillingPortal } from "../services/payments";
 
 export default function UserProfileCard() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, accessToken, logout } = useContext(AuthContext);
+  openBillingPortal(accessToken, user.stripeCustomerId);
 
-  if (!user) return <p className="text-center mt-4">loading...</p>;
+  if (!user) return <p className="text-center mt-4">Loading...</p>;
+  const handleBillingClick = async () => {
+    try {
+      const { url } = await openBillingPortal(accessToken); // ← подаваме токен тук
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error("❌ Грешка при заявка към billing-portal:", err);
+      console.log("accessToken:", accessToken);
+
+      alert("Неуспешно зареждане на Stripe портала.");
+    }
+  };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
@@ -15,7 +29,7 @@ export default function UserProfileCard() {
         </div>
 
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-          Hello, {user.email || "потребителю"}!
+          Hello, {user.email}!
         </h2>
 
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -28,6 +42,17 @@ export default function UserProfileCard() {
         >
           <LogOut className="w-4 h-4" />
           Log out
+        </button>
+
+        <div className="mt-5">
+          <SubscribeButton />
+        </div>
+
+        <button
+          onClick={handleBillingClick}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition mt-5"
+        >
+          Manage Subscription
         </button>
       </div>
     </div>
