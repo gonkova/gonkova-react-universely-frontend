@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { forgotPassword } from "../services/api";
-import Button from "./Button";
+import { forgotPassword } from "@/services/api";
+import Button from "@/components/Button";
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");

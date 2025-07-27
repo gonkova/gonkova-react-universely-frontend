@@ -1,5 +1,5 @@
-import { ThemeProvider } from "./ThemeContext";
-import { AuthProvider } from "./AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function AppProviders({ children }) {
   return (

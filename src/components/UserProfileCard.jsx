@@ -1,25 +1,15 @@
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "@/context/AuthContext";
 import { LogOut, User } from "lucide-react";
-import SubscribeButton from "../components/SubscribeButton";
-import { openBillingPortal } from "../services/payments";
+import { useBillingPortalRedirect } from "@/hooks/useBillingPortalRedirect";
 
 export default function UserProfileCard() {
   const { user, accessToken, logout } = useContext(AuthContext);
+  const redirectToBilling = useBillingPortalRedirect(accessToken);
 
-  if (!user) return <p className="text-center mt-4">Loading...</p>;
-  const handleBillingClick = async () => {
-    try {
-      const { billingPortalSessionUrl } = await openBillingPortal(accessToken);
-      if (billingPortalSessionUrl)
-        window.location.href = billingPortalSessionUrl;
-    } catch (err) {
-      console.error("❌ Грешка при заявка към billing-portal:", err);
-      console.log("accessToken:", accessToken);
-
-      alert("Неуспешно зареждане на Stripe портала.");
-    }
-  };
+  if (!user) {
+    return <p className="text-center mt-4">Loading...</p>;
+  }
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
@@ -44,12 +34,8 @@ export default function UserProfileCard() {
           Log out
         </button>
 
-        <div className="mt-5">
-          <SubscribeButton />
-        </div>
-
         <button
-          onClick={handleBillingClick}
+          onClick={redirectToBilling}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition mt-5"
         >
           Manage Subscription

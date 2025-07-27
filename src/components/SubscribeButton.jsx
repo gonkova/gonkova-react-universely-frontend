@@ -1,36 +1,27 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import { createCheckoutSession } from "../services/payments";
+import { useSubscriptionRedirect } from "@/hooks/useSubscriptionRedirect";
 
-export default function SubscribeButton() {
-  const { accessToken } = useContext(AuthContext);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const navigate = useNavigate();
+export default function SubscribeButton({ plan }) {
+  const { subscribe, loadingPlan } = useSubscriptionRedirect();
 
-  const handleSubscribe = async () => {
-    try {
-      await createCheckoutSession(1, accessToken); // plan = 1
-      setIsSubscribed(true);
-      // След успешно създаване на сесия, пренасочваме
-      navigate("/success"); // тук сложи пътя към страницата Success
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Error creating payment.");
-    }
-  };
+  if (!plan) return null;
+
+  const isLoading = loadingPlan === plan.name;
 
   return (
     <button
-      onClick={handleSubscribe}
-      className={`px-4 py-2 rounded ${
-        isSubscribed
-          ? "bg-gray-500 cursor-not-allowed"
-          : "bg-purple-600 hover:bg-purple-700"
-      } text-white`}
-      disabled={isSubscribed}
+      onClick={() => subscribe(plan)}
+      disabled={isLoading}
+      className={`w-full py-2 rounded text-sm font-medium transition ${
+        plan.highlighted
+          ? "bg-blue-600 text-white hover:bg-blue-700"
+          : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
+      }`}
     >
-      {isSubscribed ? "Subscribed" : "Subscribe"}
+      {isLoading
+        ? "Processing..."
+        : plan.name === "Free"
+        ? "Get Started"
+        : "Subscribe Now"}
     </button>
   );
 }

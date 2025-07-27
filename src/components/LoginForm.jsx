@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import Button from "./Button";
+import { AuthContext } from "@/context/AuthContext";
+import Button from "@/components/Button";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {

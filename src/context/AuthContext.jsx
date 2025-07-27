@@ -3,8 +3,8 @@ import {
   login as loginApi,
   refreshTokenRequest,
   setAuthStore,
-} from "../services/api";
-import { parseJwt } from "../utils/jwt";
+} from "@/services/api";
+import { parseJwt } from "@/utils/jwt";
 
 export const AuthContext = createContext();
 

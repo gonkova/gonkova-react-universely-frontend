@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "@/services/api";
 import { stripePromise } from "../lib/stripe";
 
 export async function createCheckoutSession(subscriptionPlan, accessToken) {

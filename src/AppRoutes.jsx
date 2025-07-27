@@ -11,6 +11,7 @@ import Layout from "./components/Layout";
 import Register from "./pages/Register";
 import ForgotPasswordForm from "./components/ForgotPasswordForm";
 import ResetPasswordForm from "./components/ResetPasswordForm";
+import Priccing from "./pages/Pricing";
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
@@ -24,7 +25,10 @@ const publicRoutes = [
   { path: "*", element: <NotFound /> },
 ];
 
-const protectedRoutes = [{ path: "/profile", element: <Profile /> }];
+const protectedRoutes = [
+  { path: "/profile", element: <Profile /> },
+  { path: "/pricing", element: <Priccing /> },
+];
 
 export default function AppRoutes() {
   return (

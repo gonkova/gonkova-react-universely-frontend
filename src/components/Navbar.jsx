@@ -1,13 +1,14 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ThemeContext } from "../context/ThemeContext";
-import { AuthContext } from "../context/AuthContext";
-import Button from "./Button";
+import { ThemeContext } from "@/context/ThemeContext";
+import { AuthContext } from "@/context/AuthContext";
+import Button from "@/components/Button";
 import { Menu, X } from "lucide-react";
 
 const navItems = [
   { name: "Home", path: "/" },
   { name: "Stories", path: "/stories" },
+  { name: "Pricing", path: "/pricing" },
   { name: "Profile", path: "/profile" },
 ];
 
