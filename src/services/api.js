@@ -93,6 +93,10 @@ export function getStories(page = 1, pageSize = 10) {
     .then((res) => res.data);
 }
 
+export function getStoryById(id) {
+  return api.get(`/stories/${id}`).then((res) => res.data);
+}
+
 export function getPassages(storyId, page = 1, pageSize = 5) {
   return api
     .get(`/stories/${storyId}/passages`, {

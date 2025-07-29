@@ -6,8 +6,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ["Inter", ...defaultTheme.fontFamily.sans],
-        heading: ["Rubik", ...defaultTheme.fontFamily.sans],
+        body: ["Poppins", ...defaultTheme.fontFamily.sans],
+        heading: ["Grenze Gotisch", ...defaultTheme.fontFamily.sans],
       },
     },
   },

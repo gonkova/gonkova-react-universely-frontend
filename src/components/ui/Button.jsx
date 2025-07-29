@@ -28,18 +28,32 @@ export default function Button({
   variant = "primary",
   size = "md",
   disabled = false,
+  loading = false,
   icon = null,
+  fullWidth = false,
   className = "",
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
-      className={clsx(base, variants[variant], sizes[size], className)}
+      disabled={disabled || loading}
+      className={clsx(
+        base,
+        variants[variant],
+        sizes[size],
+        fullWidth && "w-full",
+        className
+      )}
     >
-      {icon && <span className="mr-2">{icon}</span>}
-      {children}
+      {loading ? (
+        <span className="animate-pulse">Processing...</span>
+      ) : (
+        <>
+          {icon && <span className="mr-2">{icon}</span>}
+          {children}
+        </>
+      )}
     </button>
   );
 }

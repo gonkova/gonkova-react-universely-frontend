@@ -12,12 +12,14 @@ import Register from "./pages/Register";
 import ForgotPasswordForm from "./components/ForgotPasswordForm";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 import Priccing from "./pages/Pricing";
+import StoryDetails from "@/pages/StoryDetails";
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/stories", element: <Stories /> },
+  { path: "/story/:id", element: <StoryDetails /> },
   { path: "/forgot-password", element: <ForgotPasswordForm /> },
   { path: "/reset-password", element: <ResetPasswordForm /> },
   { path: "/success", element: <Success /> },

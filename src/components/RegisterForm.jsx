@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../services/api";
-import { AuthContext } from "../context/AuthContext";
-import Button from "./Button";
+import { register } from "@/services/api";
+import { AuthContext } from "@/context/AuthContext";
+import Button from "@/components/ui/Button";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({

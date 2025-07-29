@@ -15,26 +15,23 @@ export function AuthProvider({ children }) {
   const [refreshToken, setRefreshToken] = useState(
     () => localStorage.getItem("refreshToken") || null
   );
+  const [loading, setLoading] = useState(false);
 
   const user = accessToken ? parseJwt(accessToken) : null;
+  const isAuthenticated = !!accessToken;
 
   useEffect(() => {
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-    } else {
-      localStorage.removeItem("accessToken");
-    }
-  }, [accessToken]);
+    accessToken
+      ? localStorage.setItem("accessToken", accessToken)
+      : localStorage.removeItem("accessToken");
 
-  useEffect(() => {
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    } else {
-      localStorage.removeItem("refreshToken");
-    }
-  }, [refreshToken]);
+    refreshToken
+      ? localStorage.setItem("refreshToken", refreshToken)
+      : localStorage.removeItem("refreshToken");
+  }, [accessToken, refreshToken]);
 
   async function login(email, password) {
+    setLoading(true);
     try {
       const data = await loginApi(email, password);
       setAccessToken(data.accessToken);
@@ -45,6 +42,8 @@ export function AuthProvider({ children }) {
         success: false,
         error: error.response?.data?.detail || "Грешка при логване",
       };
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -66,7 +65,6 @@ export function AuthProvider({ children }) {
     setRefreshToken(null);
   }
 
-  // Настройка на store за axios
   useEffect(() => {
     setAuthStore({
       accessToken,
@@ -85,6 +83,8 @@ export function AuthProvider({ children }) {
         logout,
         refreshAccessToken,
         user,
+        loading,
+        isAuthenticated,
       }}
     >
       {children}

@@ -2,8 +2,9 @@ import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeContext } from "@/context/ThemeContext";
 import { AuthContext } from "@/context/AuthContext";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 import { Menu, X } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -27,9 +28,7 @@ export default function Navbar() {
   return (
     <header className="bg-gray-200 dark:bg-gray-800 shadow-md">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          Universely
-        </h1>
+        <Logo size="text-2xl" />
 
         {/* Desktop menu */}
         <nav className="hidden md:flex gap-6 items-center">
@@ -57,7 +56,7 @@ export default function Navbar() {
           )}
 
           <Button onClick={toggleTheme}>
-            {theme === "dark" ? "☀️ Светла тема" : "🌙 Тъмна тема"}
+            {theme === "dark" ? "☀️ Light Theme" : "🌙 Dark theme"}
           </Button>
         </nav>
 
