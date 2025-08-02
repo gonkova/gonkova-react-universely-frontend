@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
-import SubscribeButton from "@/components/SubscribeButton";
+import SubscribeButton from "@/components/subscription/SubscribeButton";
 
 export default function PricingPlans() {
   const { user } = useContext(AuthContext);

@@ -1,35 +1,63 @@
 import React, { createContext, useState, useEffect } from "react";
+import { refreshAccessTokenHandler } from "@/services/authService";
 import {
   login as loginApi,
-  refreshTokenRequest,
   setAuthStore,
+  getCurrentUser,
 } from "@/services/api";
 import { parseJwt } from "@/utils/jwt";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+  // Състояние за токени
   const [accessToken, setAccessToken] = useState(
     () => localStorage.getItem("accessToken") || null
   );
   const [refreshToken, setRefreshToken] = useState(
     () => localStorage.getItem("refreshToken") || null
   );
+
+  // Състояние за потребител (пълен обект от backend)
+  const [user, setUser] = useState(null);
+
+  // Зареждащо състояние за логин/операции
   const [loading, setLoading] = useState(false);
 
-  const user = accessToken ? parseJwt(accessToken) : null;
+  // Флаг за проверка дали е логнат
   const isAuthenticated = !!accessToken;
 
+  // Записваме токените в localStorage при промяна
   useEffect(() => {
-    accessToken
-      ? localStorage.setItem("accessToken", accessToken)
-      : localStorage.removeItem("accessToken");
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+    } else {
+      localStorage.removeItem("accessToken");
+    }
 
-    refreshToken
-      ? localStorage.setItem("refreshToken", refreshToken)
-      : localStorage.removeItem("refreshToken");
+    if (refreshToken) {
+      localStorage.setItem("refreshToken", refreshToken);
+    } else {
+      localStorage.removeItem("refreshToken");
+    }
   }, [accessToken, refreshToken]);
 
+  // При промяна на accessToken се извлича пълният потребител от backend
+  useEffect(() => {
+    if (!accessToken) {
+      setUser(null); // Ако няма токен, няма user
+      return;
+    }
+
+    getCurrentUser(accessToken)
+      .then((data) => setUser(data)) // Записваме пълния потребител
+      .catch((err) => {
+        console.error("Грешка при извличане на потребителя:", err);
+        setUser(null);
+      });
+  }, [accessToken]);
+
+  // Функция за логин (получава токени)
   async function login(email, password) {
     setLoading(true);
     try {
@@ -47,24 +75,27 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Функция за освежаване на accessToken
   async function refreshAccessToken() {
-    try {
-      if (!refreshToken) throw new Error("Липсва refreshToken");
-      const data = await refreshTokenRequest(refreshToken);
-      setAccessToken(data.accessToken);
+    const result = await refreshAccessTokenHandler(refreshToken);
+
+    if (result.success) {
+      setAccessToken(result.accessToken);
       return true;
-    } catch (error) {
-      console.error("Refresh token error", error);
+    } else {
       logout();
       return false;
     }
   }
 
+  // Функция за изход (logout)
   function logout() {
     setAccessToken(null);
     setRefreshToken(null);
+    setUser(null);
   }
 
+  // Обновяваме "глобалния" store за api.js (за интерцептори)
   useEffect(() => {
     setAuthStore({
       accessToken,

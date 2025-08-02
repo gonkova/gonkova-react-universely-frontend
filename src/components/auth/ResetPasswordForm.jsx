@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { resetPassword } from "../services/api";
+import { resetPassword } from "@/services/api";
 
 export default function ResetPasswordForm() {
   const location = useLocation();

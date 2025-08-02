@@ -1,4 +1,4 @@
-import PricingPlans from "@/components/PricingPlans";
+import PricingPlans from "@/components/subscription/PricingPlans";
 
 export default function Priccing() {
   return (

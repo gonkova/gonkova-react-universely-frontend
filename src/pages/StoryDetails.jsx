@@ -1,10 +1,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Button from "@/components/ui/Button";
+import Reactions from "@/components/Reactions";
 
 export default function StoryDetails() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const story = state?.story;
+  const accessToken = localStorage.getItem("accessToken");
 
   if (!story) {
     return (
@@ -29,7 +32,7 @@ export default function StoryDetails() {
           src={story.imageUrl}
           alt={story.title}
           loading="lazy"
-          className="w-full max-h-[400px] object-contain rounded-md transition-transform duration-300 ease-in-out hover:scale-110 active:scale-95 hover:cursor-pointer"
+          className="w-full max-h-[400px] object-contain rounded-md transition-transform duration-300 ease-in-out hover:scale-105 active:scale-95 hover:cursor-pointer"
           style={{ userSelect: "none" }}
         />
       )}
@@ -41,6 +44,9 @@ export default function StoryDetails() {
       <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
         Added: {new Date(story.addedAtUtc).toLocaleDateString()}
       </p>
+
+      {/* ❤️ 👎 Reactions */}
+      <Reactions storyId={story.id} accessToken={accessToken} />
     </div>
   );
 }

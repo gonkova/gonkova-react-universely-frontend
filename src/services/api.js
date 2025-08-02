@@ -87,14 +87,36 @@ export function resetPassword(email, encodedToken, newPassword) {
   });
 }
 
+export function getCurrentUser(token) {
+  return api
+    .get("/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => res.data);
+}
+
 export function getStories(page = 1, pageSize = 10) {
   return api
     .get("/stories", { params: { Page: page, PageSize: pageSize } })
     .then((res) => res.data);
 }
 
+export function storyReactions(storyId, reactionType) {
+  return api.post(
+    `/stories/${storyId}/reactions`,
+    { reactionType },
+    {
+      headers: {
+        Authorization: `Bearer ${store.accessToken}`,
+      },
+    }
+  );
+}
+
 export function getStoryById(id) {
-  return api.get(`/stories/${id}`).then((res) => res.data);
+  return api.get(`/stories/reactions/${id}`).then((res) => res.data);
 }
 
 export function getPassages(storyId, page = 1, pageSize = 5) {

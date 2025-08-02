@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 
@@ -11,7 +13,8 @@ const phrases = [
 ];
 
 export default function Hero() {
-  const navigate = useNavigate();
+  const { isAuthenticated, user } = useContext(AuthContext);
+
   const [index, setIndex] = useState(0);
   const [bgLoaded, setBgLoaded] = useState(false);
 
@@ -71,22 +74,37 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => navigate("/register")}
-            className="hover:scale-105 hover:shadow-xl transition-transform duration-300"
-          >
-            Get Started
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => navigate("/login")}
-            className="hover:scale-105 hover:shadow-xl transition-transform duration-300"
-          >
-            Log In
-          </Button>
+          <Link to="/register">
+            <Button
+              variant="primary"
+              size="lg"
+              className="hover:scale-105 hover:shadow-xl transition-transform duration-300"
+            >
+              Get Started
+            </Button>
+          </Link>
+
+          {isAuthenticated ? (
+            <Link to="/stories">
+              <Button
+                variant="outline"
+                size="lg"
+                className="hover:scale-105 hover:shadow-xl transition-transform duration-300"
+              >
+                Play now
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/login">
+              <Button
+                variant="outline"
+                size="lg"
+                className="hover:scale-105 hover:shadow-xl transition-transform duration-300"
+              >
+                Log In
+              </Button>
+            </Link>
+          )}
         </motion.div>
       </motion.div>
     </section>

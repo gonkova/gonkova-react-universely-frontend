@@ -4,6 +4,7 @@ export function useBillingPortalRedirect(accessToken) {
   return async function redirect() {
     try {
       const { billingPortalSessionUrl } = await openBillingPortal(accessToken);
+
       if (billingPortalSessionUrl) {
         window.location.href = billingPortalSessionUrl;
       } else {

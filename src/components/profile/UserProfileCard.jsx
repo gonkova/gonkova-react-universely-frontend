@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { LogOut, User } from "lucide-react";
 import { useBillingPortalRedirect } from "@/hooks/useBillingPortalRedirect";
+import SubscriptionPlan from "@/components/subscription/SubscriptionPlan";
 
 export default function UserProfileCard() {
   const { user, accessToken, logout } = useContext(AuthContext);
@@ -19,26 +20,26 @@ export default function UserProfileCard() {
         </div>
 
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-          Hello, {user.email}!
+          Hello, {user.username || user.email}!
         </h2>
 
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Welcome to your profile.
         </p>
 
+        <SubscriptionPlan plan={user.subscriptionPlan} />
+        <button
+          onClick={redirectToBilling}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition mt-5 mb-5"
+        >
+          Manage Subscription
+        </button>
         <button
           onClick={logout}
           className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition"
         >
           <LogOut className="w-4 h-4" />
           Log out
-        </button>
-
-        <button
-          onClick={redirectToBilling}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition mt-5"
-        >
-          Manage Subscription
         </button>
       </div>
     </div>
