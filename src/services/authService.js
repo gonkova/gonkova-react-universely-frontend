@@ -7,13 +7,15 @@ export async function refreshAccessTokenHandler(refreshToken) {
   }
 
   try {
+    // Очакваме backend да върне { accessToken, refreshToken? }
     const data = await refreshTokenRequest(refreshToken);
     return {
       success: true,
       accessToken: data.accessToken,
+      refreshToken: data.refreshToken ?? null,
     };
   } catch (error) {
-    console.error("Грешка при опит за освежаване на access токен", error);
+    console.error("Error while trying to refresh access token", error);
     return { success: false };
   }
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import { refreshAccessTokenHandler } from "@/services/authService";
 import {
   login as loginApi,
@@ -10,54 +10,41 @@ import { parseJwt } from "@/utils/jwt";
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Състояние за токени
   const [accessToken, setAccessToken] = useState(
     () => localStorage.getItem("accessToken") || null
   );
   const [refreshToken, setRefreshToken] = useState(
     () => localStorage.getItem("refreshToken") || null
   );
-
-  // Състояние за потребител (пълен обект от backend)
   const [user, setUser] = useState(null);
-
-  // Зареждащо състояние за логин/операции
   const [loading, setLoading] = useState(false);
 
-  // Флаг за проверка дали е логнат
   const isAuthenticated = !!accessToken;
 
-  // Записваме токените в localStorage при промяна
+  // sync localStorage
   useEffect(() => {
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-    } else {
-      localStorage.removeItem("accessToken");
-    }
+    if (accessToken) localStorage.setItem("accessToken", accessToken);
+    else localStorage.removeItem("accessToken");
 
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    } else {
-      localStorage.removeItem("refreshToken");
-    }
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+    else localStorage.removeItem("refreshToken");
   }, [accessToken, refreshToken]);
 
-  // При промяна на accessToken се извлича пълният потребител от backend
+  // fetch current user when accessToken changes
   useEffect(() => {
     if (!accessToken) {
-      setUser(null); // Ако няма токен, няма user
+      setUser(null);
       return;
     }
-
-    getCurrentUser(accessToken)
-      .then((data) => setUser(data)) // Записваме пълния потребител
+    getCurrentUser()
+      .then((data) => setUser(data))
       .catch((err) => {
         console.error("Грешка при извличане на потребителя:", err);
         setUser(null);
       });
   }, [accessToken]);
 
-  // Функция за логин (получава токени)
+  // login
   async function login(email, password) {
     setLoading(true);
     try {
@@ -75,35 +62,61 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Функция за освежаване на accessToken
-  async function refreshAccessToken() {
-    const result = await refreshAccessTokenHandler(refreshToken);
+  // refreshAccessToken: използва authService и обновява и refreshToken (ако е върнат)
+  const refreshAccessToken = useCallback(async () => {
+    if (!refreshToken) {
+      return false;
+    }
 
-    if (result.success) {
+    const result = await refreshAccessTokenHandler(refreshToken);
+    if (result.success && result.accessToken) {
       setAccessToken(result.accessToken);
+      if (result.refreshToken) {
+        setRefreshToken(result.refreshToken);
+      }
       return true;
     } else {
       logout();
       return false;
     }
-  }
+  }, [refreshToken]);
 
-  // Функция за изход (logout)
+  // logout
   function logout() {
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
   }
 
-  // Обновяваме "глобалния" store за api.js (за интерцептори)
+  // expose helper that api.js може да ползва (setAuthStore)
   useEffect(() => {
     setAuthStore({
       accessToken,
       refreshToken,
       refreshAccessToken,
       logout,
+      // ако искаш, може да предоставиш setTokens helper за директна сетване
+      setTokens: ({ accessToken: a, refreshToken: r }) => {
+        if (a) setAccessToken(a);
+        if (r) setRefreshToken(r);
+      },
     });
-  }, [accessToken, refreshToken]);
+  }, [accessToken, refreshToken, refreshAccessToken]);
+
+  // Silent refresh при mount: ако нямаш accessToken, но имаш refreshToken -> опитай да вземеш нов accessToken
+  useEffect(() => {
+    let mounted = true;
+    async function trySilentRefresh() {
+      if (!accessToken && refreshToken) {
+        // Вариант: проверка за exp в refreshToken може да се добави
+        await refreshAccessToken();
+      }
+    }
+    if (mounted) trySilentRefresh();
+    return () => {
+      mounted = false;
+    };
+  }, []); // run once on mount
 
   return (
     <AuthContext.Provider

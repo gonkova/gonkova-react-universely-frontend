@@ -1,4 +1,5 @@
-import React from "react";
+import { useState } from "react";
+
 import StoryList from "@/components/StoryList";
 
 export default function Stories() {
