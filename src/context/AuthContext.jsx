@@ -62,22 +62,19 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // refreshAccessToken: използва authService и обновява и refreshToken (ако е върнат)
+  // refreshAccessToken: връща новия accessToken или null
   const refreshAccessToken = useCallback(async () => {
-    if (!refreshToken) {
-      return false;
-    }
-
+    if (!refreshToken) return null;
     const result = await refreshAccessTokenHandler(refreshToken);
     if (result.success && result.accessToken) {
       setAccessToken(result.accessToken);
       if (result.refreshToken) {
         setRefreshToken(result.refreshToken);
       }
-      return true;
+      return result.accessToken;
     } else {
       logout();
-      return false;
+      return null;
     }
   }, [refreshToken]);
 
@@ -88,14 +85,13 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  // expose helper that api.js може да ползва (setAuthStore)
+  // expose helper за api.js
   useEffect(() => {
     setAuthStore({
       accessToken,
       refreshToken,
       refreshAccessToken,
       logout,
-      // ако искаш, може да предоставиш setTokens helper за директна сетване
       setTokens: ({ accessToken: a, refreshToken: r }) => {
         if (a) setAccessToken(a);
         if (r) setRefreshToken(r);
@@ -103,20 +99,40 @@ export function AuthProvider({ children }) {
     });
   }, [accessToken, refreshToken, refreshAccessToken]);
 
-  // Silent refresh при mount: ако нямаш accessToken, но имаш refreshToken -> опитай да вземеш нов accessToken
+  // Silent refresh при mount
   useEffect(() => {
-    let mounted = true;
     async function trySilentRefresh() {
       if (!accessToken && refreshToken) {
-        // Вариант: проверка за exp в refreshToken може да се добави
         await refreshAccessToken();
       }
     }
-    if (mounted) trySilentRefresh();
-    return () => {
-      mounted = false;
-    };
-  }, []); // run once on mount
+    trySilentRefresh();
+  }, []); // само при mount
+
+  // 🔑 Проактивен refresh преди exp
+  useEffect(() => {
+    if (!accessToken) return;
+
+    try {
+      const { exp } = parseJwt(accessToken); // exp е в секунди
+      const now = Math.floor(Date.now() / 1000);
+      const refreshIn = exp - 30 - now; // 30 секунди преди expiry
+
+      if (refreshIn <= 0) {
+        // вече е изтекъл/на ръба → рефрешни веднага
+        refreshAccessToken();
+        return;
+      }
+
+      const id = setTimeout(() => {
+        refreshAccessToken().catch(() => logout());
+      }, refreshIn * 1000);
+
+      return () => clearTimeout(id);
+    } catch (err) {
+      console.warn("Неуспешно декодиране на accessToken:", err);
+    }
+  }, [accessToken, refreshAccessToken]);
 
   return (
     <AuthContext.Provider

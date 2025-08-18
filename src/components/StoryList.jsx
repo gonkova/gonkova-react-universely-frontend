@@ -1,4 +1,3 @@
-// components/StoryList.jsx
 import { useState, useEffect } from "react";
 import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
@@ -68,10 +67,29 @@ export default function StoryList() {
                     className="w-full md:w-48 h-48 object-cover rounded-l-xl transition-transform duration-300 hover:scale-105"
                   />
                 )}
-                <div className="p-4 flex flex-col justify-between ">
+                <div className="p-4 flex flex-col justify-between">
                   <div>
                     <h2 className="text-xl font-bold">{story.title}</h2>
                     <p className="mt-2 text-sm">{story.description}</p>
+
+                    {story.genres?.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {story.genres.map((g, i) => {
+                          const name =
+                            typeof g === "string"
+                              ? g
+                              : g.name ?? g.title ?? String(g);
+                          return (
+                            <span
+                              key={name + i}
+                              className="px-3 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-white transition-colors duration-200 hover:bg-blue-200 dark:hover:bg-blue-700"
+                            >
+                              {name}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   <p className="mt-4 text-xs text-gray-500">
                     Added: {new Date(story.addedAtUtc).toLocaleDateString()}

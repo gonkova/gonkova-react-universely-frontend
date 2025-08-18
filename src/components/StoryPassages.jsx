@@ -10,7 +10,7 @@ export default function StoryPassages({ storyId }) {
         const data = await getPassages(storyId, 1, 5);
         setPassages(data);
       } catch (err) {
-        console.error("Грешка при зареждане на пасажи:", err);
+        console.error("Error loading passages:", err);
       }
     };
     fetchPassages();

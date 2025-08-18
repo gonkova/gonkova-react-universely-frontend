@@ -26,10 +26,18 @@ export const setAuthStore = ({
   store = { accessToken, refreshToken, refreshAccessToken, logout, setTokens };
 };
 
+// === Request interceptor ===
 api.interceptors.request.use(
   (config) => {
+    const url = (config.url || "").toString();
+    const skipAuth =
+      url.endsWith("/users/refresh") ||
+      url.endsWith("/users/login") ||
+      url.endsWith("/users/register");
+
     const token = store.accessToken;
-    if (token) {
+
+    if (token && !skipAuth) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -38,6 +46,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// === Response interceptor ===
 let isRefreshing = false;
 let refreshSubscribers = [];
 
@@ -54,8 +63,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     const status = error.response?.status;
+
     if (status !== 401) {
       return Promise.reject(error);
     }
@@ -88,11 +97,9 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const refreshed = await store.refreshAccessToken();
+      const newAccessToken = await store.refreshAccessToken();
 
-      const newAccessToken = store.accessToken;
-
-      if (refreshed && newAccessToken) {
+      if (newAccessToken) {
         onRefreshed(newAccessToken);
         originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -112,6 +119,7 @@ api.interceptors.response.use(
   }
 );
 
+// === API endpoints ===
 export function login(email, password) {
   return api.post("/users/login", { email, password }).then((res) => res.data);
 }
@@ -142,12 +150,20 @@ export function getCurrentUser() {
   return api.get("/users/me").then((res) => res.data);
 }
 
+// === Reactions ===
+
+export const ReactionType = { Like: 1, Dislike: 2 };
+
 export function storyReactions(storyId, reactionType) {
-  return api.post(`/stories/${storyId}/reactions`, { reactionType });
+  const payload = { reactionType };
+  console.log("📤 Sending payload to backend:", payload);
+  return api
+    .post(`/stories/${storyId}/reactions`, payload)
+    .then((res) => res.data);
 }
 
 export function getStoryById(id) {
-  return api.get(`/stories/reactions/${id}`).then((res) => res.data);
+  return api.get(`/stories/${id}`).then((res) => res.data);
 }
 
 export function getStoryDetailsById(id, selectedGenreNames = []) {
