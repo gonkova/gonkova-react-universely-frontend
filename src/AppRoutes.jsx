@@ -13,6 +13,7 @@ import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import Priccing from "@/pages/Pricing";
 import StoryDetails from "@/pages/StoryDetails";
+import StoryReader from "@/pages/StoryReader";
 
 const publicRoutes = [
   { path: "/", element: <Home /> },
@@ -20,6 +21,7 @@ const publicRoutes = [
   { path: "/register", element: <Register /> },
   { path: "/stories", element: <Stories /> },
   { path: "/story/:id", element: <StoryDetails /> },
+  { path: "/stories/:id/play", element: <StoryReader /> },
   { path: "/forgot-password", element: <ForgotPasswordForm /> },
   { path: "/reset-password", element: <ResetPasswordForm /> },
   { path: "/success", element: <Success /> },

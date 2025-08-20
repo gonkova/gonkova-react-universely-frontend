@@ -42,7 +42,7 @@ export default function StoryDetails() {
   const genres = Array.isArray(story.genres) ? story.genres : [];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
       <Button
         variant="secondary"
         onClick={() => navigate(-1)}
@@ -97,7 +97,14 @@ export default function StoryDetails() {
         </p>
       )}
 
-      <div className="pt-6">
+      <div className="pt-6 space-y-4">
+        <Button
+          variant="primary"
+          className="w-full sm:w-auto"
+          onClick={() => navigate(`/stories/${id}/play`, { state: { story } })}
+        >
+          🎮 Start Story
+        </Button>
         <StoryReactions
           storyId={story.id || id}
           initialUserReaction={story.userReactionType ?? null}

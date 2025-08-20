@@ -184,15 +184,37 @@ export function getStoryDetailsById(id, selectedGenreNames = []) {
 
   return api.get(url).then((res) => res.data);
 }
-
-export function getPassages(storyId, page = 1, pageSize = 5) {
+// === Passages ===
+// ✅ ADD: започване на история (задължително преди да четем пасажи)
+export function startStory(storyId) {
   return api
-    .get(`/stories/${storyId}/passages`, {
-      params: { Page: page, PageSize: pageSize },
+    .post("/users/me/started-stories", { storyId })
+    .then((res) => res.data);
+}
+
+// ✅ ADD: запис на прогрес (последен пасаж и избор)
+export function updateStoryProgress(storyId, lastPassageId, lastChoiceId) {
+  return api
+    .put(`/users/me/started-stories/${storyId}`, {
+      lastPassageId,
+      lastChoiceId,
     })
     .then((res) => res.data);
 }
 
+// ✅ NEW: вземане на пасажи според FromPassageId (бекендът очаква това)
+export function getPassagesFrom(storyId, fromPassageId = null, pageSize = 1) {
+  // ако fromPassageId е null/undefined — бекендът ще върне starting passage
+  const params = { PageSize: pageSize };
+  if (fromPassageId) params.FromPassageId = fromPassageId;
+
+  return api
+    .get(`/stories/${storyId}/passages`, { params })
+    .then((res) => res.data); // { passages: [...], hasMore: boolean }
+}
+
+
+// === Genres ===
 export function getGenres() {
   return api.get("/genres").then((res) => res.data);
 }
