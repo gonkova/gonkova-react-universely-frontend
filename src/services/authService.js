@@ -7,7 +7,6 @@ export async function refreshAccessTokenHandler(refreshToken) {
   }
 
   try {
-    // Очакваме backend да върне { accessToken, refreshToken? }
     const data = await refreshTokenRequest(refreshToken);
     return {
       success: true,
