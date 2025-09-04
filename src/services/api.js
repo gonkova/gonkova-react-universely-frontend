@@ -200,9 +200,11 @@ export function updateStoryProgress(storyId, lastPassageId, lastChoiceId) {
     .then((res) => res.data);
 }
 
-export function getPassagesFrom(storyId, fromPassageId = null, pageSize = 1) {
-  const params = { PageSize: pageSize };
-  if (fromPassageId) params.FromPassageId = fromPassageId;
+export function getPassagesFrom(storyId, fromPassageId = null, pageSize = 999) {
+  const params = {
+    FromPassageId: fromPassageId == null ? "null" : fromPassageId,
+    PageSize: pageSize,
+  };
 
   return api
     .get(`/stories/${storyId}/passages`, { params })

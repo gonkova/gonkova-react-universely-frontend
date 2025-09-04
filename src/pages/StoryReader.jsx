@@ -16,25 +16,22 @@ export default function StoryReader() {
     reload,
     choose,
     isEnded,
-    hasMore,
-    loadNextPage,
+    totalPassages,
+    allPassages,
   } = useStoryPlayer(id);
 
-  // Progress calculation
-  const progressPercent = isEnded
-    ? 100
-    : hasMore
-    ? Math.min(history.length * 10, 95)
-    : 100;
+  const progressPercent = totalPassages
+    ? Math.round((history.length / totalPassages) * 100)
+    : 0;
 
-  // Debug
   useEffect(() => {
     console.log("📌 Current passage:", current);
     console.log(
-      "📝 Full history:",
+      "📝 History IDs:",
       history.map((p) => p.id)
     );
-  }, [current, history]);
+    console.log("📚 All passages JSON:", JSON.stringify(allPassages, null, 2));
+  }, [current, history, allPassages]);
 
   if (error) {
     return (
@@ -59,7 +56,6 @@ export default function StoryReader() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-      {/* Progress bar */}
       <div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
@@ -68,23 +64,18 @@ export default function StoryReader() {
           />
         </div>
         <p className="text-sm text-gray-500 mt-1">
-          Passages read: {history.length}
-          {isEnded ? " (reached the end)" : hasMore ? " (there is more…)" : ""}
+          Passages read: {history.length}/{totalPassages}
+          {isEnded ? " (reached the end)" : ""}
         </p>
       </div>
 
-      <Button
-        variant="secondary"
-        onClick={() => navigate(-1)}
-        className="transition-transform hover:-translate-x-1 hover:scale-105"
-      >
+      <Button variant="secondary" onClick={() => navigate(-1)}>
         ← Back
       </Button>
 
       <div className="space-y-4">
         {history.map((passage, idx) => {
           const isLast = idx === history.length - 1;
-
           return (
             <div key={passage.id} className="space-y-2">
               <div className="p-4 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
@@ -94,17 +85,25 @@ export default function StoryReader() {
               </div>
 
               {isLast && !isEnded && (
-                <div className="flex flex-col gap-2">
+                <div className="grid gap-3">
                   {(passage.choices || []).map((ch) => (
-                    <Button
+                    <button
                       key={ch.id}
-                      variant="primary"
                       onClick={() => choose(ch)}
                       disabled={loading}
-                      className="text-left"
+                      className="
+                        p-4 rounded-xl border border-gray-200 dark:border-gray-700 
+                        bg-white dark:bg-blue-800 
+                        text-left text-gray-900 dark:text-gray-100 
+                        shadow-sm hover:shadow-md 
+                        transition-transform duration-200 
+                        hover:-translate-y-1 active:scale-95
+                        flex items-center gap-3
+                      "
                     >
-                      {ch.description}
-                    </Button>
+                      <span className="text-lg">✨</span>
+                      <span className="text-base">{ch.description}</span>
+                    </button>
                   ))}
                 </div>
               )}
@@ -122,14 +121,6 @@ export default function StoryReader() {
       {loading && (
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <Spinner size="sm" /> loading…
-        </div>
-      )}
-
-      {!isEnded && hasMore && !loading && (
-        <div className="flex justify-center mt-4">
-          <Button variant="secondary" onClick={loadNextPage}>
-            ⬇️ Load more passages
-          </Button>
         </div>
       )}
     </div>
