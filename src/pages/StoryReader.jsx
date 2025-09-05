@@ -23,14 +23,20 @@ export default function StoryReader() {
   const progressPercent = totalPassages
     ? Math.round((history.length / totalPassages) * 100)
     : 0;
+  const clampedPercent = Math.min(100, Math.max(0, progressPercent));
 
   useEffect(() => {
-    console.log("📌 Current passage:", current);
-    console.log(
-      "📝 History IDs:",
-      history.map((p) => p.id)
-    );
-    console.log("📚 All passages JSON:", JSON.stringify(allPassages, null, 2));
+    if (process.env.NODE_ENV === "development") {
+      console.log("📌 Current passage:", current);
+      console.log(
+        "📝 History IDs:",
+        history.map((p) => p.id)
+      );
+      console.log(
+        "📚 All passages JSON:",
+        JSON.stringify(allPassages, null, 2)
+      );
+    }
   }, [current, history, allPassages]);
 
   if (error) {
@@ -56,11 +62,12 @@ export default function StoryReader() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      {/* progress bar */}
       <div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
             className="bg-blue-600 h-2 rounded-full transition-all"
-            style={{ width: `${progressPercent}%` }}
+            style={{ width: `${clampedPercent}%` }}
           />
         </div>
         <p className="text-sm text-gray-500 mt-1">
@@ -73,22 +80,26 @@ export default function StoryReader() {
         ← Back
       </Button>
 
+      {/* passages */}
       <div className="space-y-4">
         {history.map((passage, idx) => {
           const isLast = idx === history.length - 1;
+          const key = passage.id ?? passage._id ?? passage.slug ?? idx;
+
           return (
-            <div key={passage.id} className="space-y-2">
+            <div key={key} className="space-y-2">
               <div className="p-4 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
                 <p className="whitespace-pre-line text-lg leading-relaxed text-gray-900 dark:text-gray-100">
                   {passage.narrative}
                 </p>
               </div>
 
-              {isLast && !isEnded && (
+              {isLast && !isEnded && Array.isArray(passage.choices) && (
                 <div className="grid gap-3">
-                  {(passage.choices || []).map((ch) => (
+                  {passage.choices.map((ch) => (
                     <button
                       key={ch.id}
+                      type="button"
                       onClick={() => choose(ch)}
                       disabled={loading}
                       className="

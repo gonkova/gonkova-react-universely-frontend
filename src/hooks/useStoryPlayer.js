@@ -21,7 +21,6 @@ export function useStoryPlayer(storyId) {
     };
   }, []);
 
-  
   const mergePassages = useCallback((prev, nextBatch) => {
     const map = new Map(prev.map((p) => [p.id, p]));
     for (const p of nextBatch || []) {
@@ -30,7 +29,6 @@ export function useStoryPlayer(storyId) {
     return Array.from(map.values());
   }, []);
 
-  
   const loadAll = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -42,8 +40,7 @@ export function useStoryPlayer(storyId) {
         console.warn("[useStoryPlayer.loadAll] startStory ignored:", e);
       }
 
-    
-      const data = await getPassagesFrom(storyId, null, 99999);
+      const data = await getPassagesFrom(storyId, null, 999);
       const passages =
         data?.passages || data?.items || data?.data?.passages || [];
 
@@ -52,7 +49,6 @@ export function useStoryPlayer(storyId) {
       setAllPassages(passages);
 
       if (passages.length) {
-        
         const first =
           passages.find((p) => (p.type || "").toLowerCase() === "starting") ||
           passages[0];
@@ -70,7 +66,6 @@ export function useStoryPlayer(storyId) {
     }
   }, [storyId]);
 
- 
   useEffect(() => {
     setAllPassages([]);
     setHistory([]);
@@ -79,10 +74,8 @@ export function useStoryPlayer(storyId) {
     loadAll();
   }, [storyId, loadAll]);
 
-  
   const fetchNextPassageIfMissing = useCallback(
     async (wantedId) => {
-     
       let found =
         allPassages.find((p) => p.id === wantedId) ||
         allPassages.find((p) => p._id === wantedId) ||
@@ -102,10 +95,8 @@ export function useStoryPlayer(storyId) {
 
         if (!batch.length) break;
 
-        
         setAllPassages((prev) => mergePassages(prev, batch));
 
-       
         found =
           batch.find((p) => p.id === wantedId) ||
           batch.find((p) => p._id === wantedId) ||
@@ -124,7 +115,6 @@ export function useStoryPlayer(storyId) {
     [allPassages, storyId, mergePassages]
   );
 
- 
   const choose = useCallback(
     async (choice) => {
       if (!current || !choice) return;
@@ -135,21 +125,17 @@ export function useStoryPlayer(storyId) {
         console.log("[useStoryPlayer.choose] current:", current);
         console.log("[useStoryPlayer.choose] choice:", choice);
 
-      
         await updateStoryProgress(storyId, current.id, choice.id);
 
-       
         const nextId = choice?.nextPassageId || choice?.next_passage_id || null;
 
         console.log("[useStoryPlayer.choose] resolved nextId:", nextId);
 
         if (!nextId) {
-          
           console.log("[useStoryPlayer.choose] no nextId -> probably end");
           return;
         }
 
-      
         let next =
           allPassages.find(
             (p) => p.id === nextId || p._id === nextId || p.slug === nextId
@@ -164,7 +150,6 @@ export function useStoryPlayer(storyId) {
           return;
         }
 
-        
         setCurrent(next);
         setHistory((prev) => [...prev, next]);
       } catch (e) {
@@ -177,7 +162,6 @@ export function useStoryPlayer(storyId) {
     },
     [storyId, current, allPassages, fetchNextPassageIfMissing]
   );
-
 
   const loadNextPage = useCallback(() => {
     if (history.length < allPassages.length) {
