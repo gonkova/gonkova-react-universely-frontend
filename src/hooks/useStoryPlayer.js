@@ -21,6 +21,10 @@ export function useStoryPlayer(storyId) {
     };
   }, []);
 
+  useEffect(() => {
+    setError(null);
+  }, [storyId]);
+
   const mergePassages = useCallback((prev, nextBatch) => {
     const map = new Map(prev.map((p) => [p.id, p]));
     for (const p of nextBatch || []) {
@@ -33,11 +37,20 @@ export function useStoryPlayer(storyId) {
     setLoading(true);
     setError(null);
     try {
+      let startResp;
       try {
-        const startResp = await startStory(storyId);
+        startResp = await startStory(storyId);
         console.log("[useStoryPlayer.loadAll] startStory:", startResp);
       } catch (e) {
-        console.warn("[useStoryPlayer.loadAll] startStory ignored:", e);
+        const problem = e?.response?.data;
+        const detail = problem?.detail || e.message || "Unknown error";
+
+        console.warn("[useStoryPlayer.loadAll] startStory failed:", problem);
+
+        if (isMounted.current) {
+          setError(new Error(detail));
+        }
+        return;
       }
 
       const data = await getPassagesFrom(storyId, null, 999);

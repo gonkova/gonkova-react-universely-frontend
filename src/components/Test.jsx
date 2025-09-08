@@ -39,7 +39,6 @@ export default function StoryReader() {
     }
   }, [current, history, allPassages]);
 
-  // 🔴 Error block
   if (error) {
     return (
       <div className="max-w-xl mx-auto p-6 text-center space-y-6">
@@ -57,15 +56,11 @@ export default function StoryReader() {
           <Button variant="primary" onClick={() => navigate("/pricing")}>
             💎 View Plans
           </Button>
-          <Button variant="secondary" onClick={() => navigate(-1)}>
-            ← Back
-          </Button>
         </div>
       </div>
     );
   }
 
-  // ⏳ Loading
   if (!current) {
     return (
       <div className="p-10 flex items-center justify-center">
@@ -74,14 +69,13 @@ export default function StoryReader() {
     );
   }
 
-  // ✅ Main story content
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
       {/* progress bar */}
       <div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 shadow-sm">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all shadow-inner"
+            className="bg-blue-600 h-2 rounded-full transition-all"
             style={{ width: `${clampedPercent}%` }}
           />
         </div>
@@ -91,7 +85,6 @@ export default function StoryReader() {
         </p>
       </div>
 
-      {/* Back button */}
       <Button variant="secondary" onClick={() => navigate(-1)}>
         ← Back
       </Button>
@@ -103,14 +96,13 @@ export default function StoryReader() {
           const key = passage.id ?? passage._id ?? passage.slug ?? idx;
 
           return (
-            <div key={key} className="space-y-2 animate-fadeIn">
-              <div className="p-5 rounded-xl bg-white dark:bg-gray-800 shadow hover:shadow-lg transition-shadow duration-300 transform hover:scale-[1.02]">
-                <p className="whitespace-pre-line text-lg leading-relaxed text-gray-900 dark:text-gray-100 transition-colors duration-300">
+            <div key={key} className="space-y-2">
+              <div className="p-4 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+                <p className="whitespace-pre-line text-lg leading-relaxed text-gray-900 dark:text-gray-100">
                   {passage.narrative}
                 </p>
               </div>
 
-              {/* choices */}
               {isLast && !isEnded && Array.isArray(passage.choices) && (
                 <div className="grid gap-3">
                   {passage.choices.map((ch) => (
@@ -120,11 +112,11 @@ export default function StoryReader() {
                       onClick={() => choose(ch)}
                       disabled={loading}
                       className="
-                        p-4 rounded-xl border border-gray-200 dark:border-gray-700
-                        bg-white dark:bg-blue-800
-                        text-left text-gray-900 dark:text-gray-100
-                        shadow-sm hover:shadow-md
-                        transition-all duration-200
+                        p-4 rounded-xl border border-gray-200 dark:border-gray-700 
+                        bg-white dark:bg-blue-800 
+                        text-left text-gray-900 dark:text-gray-100 
+                        shadow-sm hover:shadow-md 
+                        transition-transform duration-200 
                         hover:-translate-y-1 active:scale-95
                         flex items-center gap-3
                       "
@@ -136,7 +128,6 @@ export default function StoryReader() {
                 </div>
               )}
 
-              {/* end of story */}
               {isLast && isEnded && (
                 <div className="p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-md text-green-800 dark:text-green-100">
                   End of story. Thanks for playing! ✨
@@ -147,7 +138,6 @@ export default function StoryReader() {
         })}
       </div>
 
-      {/* loading indicator */}
       {loading && (
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <Spinner size="sm" /> loading…
