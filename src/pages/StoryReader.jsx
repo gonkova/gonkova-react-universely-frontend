@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useStoryPlayer } from "@/hooks/useStoryPlayer";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";
+import StoryReactions from "@/components/StoryReactions";
 
 export default function StoryReader() {
   const { id } = useParams();
@@ -25,6 +26,7 @@ export default function StoryReader() {
     : 0;
   const clampedPercent = Math.min(100, Math.max(0, progressPercent));
 
+  // Dev logs
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
       console.log("📌 Current passage:", current);
@@ -39,7 +41,6 @@ export default function StoryReader() {
     }
   }, [current, history, allPassages]);
 
-  // 🔴 Error block
   if (error) {
     return (
       <div className="max-w-xl mx-auto p-6 text-center space-y-6">
@@ -49,7 +50,6 @@ export default function StoryReader() {
           </p>
           <p className="mt-2 text-sm">{error.message}</p>
         </div>
-
         <div className="flex justify-center gap-4">
           <Button variant="secondary" onClick={reload}>
             🔄 Try again
@@ -65,16 +65,13 @@ export default function StoryReader() {
     );
   }
 
-  // ⏳ Loading
-  if (!current) {
+  if (!current)
     return (
       <div className="p-10 flex items-center justify-center">
         <Spinner />
       </div>
     );
-  }
 
-  // ✅ Main story content
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
       {/* progress bar */}
@@ -86,15 +83,13 @@ export default function StoryReader() {
           />
         </div>
         <p className="text-sm text-gray-500 mt-1">
-          Passages read: {history.length}/{totalPassages}
+          Passages read: {history.length}/{totalPassages}{" "}
           {isEnded ? " (reached the end)" : ""}
         </p>
       </div>
 
-      {/* Back button */}
-      <Button variant="secondary" onClick={() => navigate(-1)}>
-        ← Back
-      </Button>
+      {/* Story reactions */}
+      <StoryReactions storyId={id} initialUserReaction={null} />
 
       {/* passages */}
       <div className="space-y-4">
@@ -119,15 +114,7 @@ export default function StoryReader() {
                       type="button"
                       onClick={() => choose(ch)}
                       disabled={loading}
-                      className="
-                        p-4 rounded-xl border border-gray-200 dark:border-gray-700
-                        bg-white dark:bg-blue-800
-                        text-left text-gray-900 dark:text-gray-100
-                        shadow-sm hover:shadow-md
-                        transition-all duration-200
-                        hover:-translate-y-1 active:scale-95
-                        flex items-center gap-3
-                      "
+                      className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-blue-800 text-left text-gray-900 dark:text-gray-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1 active:scale-95 flex items-center gap-3"
                     >
                       <span className="text-lg">✨</span>
                       <span className="text-base">{ch.description}</span>

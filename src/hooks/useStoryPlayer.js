@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   startStory,
   updateStoryProgress,
@@ -14,6 +14,7 @@ export function useStoryPlayer(storyId) {
 
   const isMounted = useRef(true);
 
+  // track mounting
   useEffect(() => {
     isMounted.current = true;
     return () => {
@@ -25,6 +26,66 @@ export function useStoryPlayer(storyId) {
     setError(null);
   }, [storyId]);
 
+  useEffect(() => {
+    if (!storyId) return;
+
+    setAllPassages([]);
+    setHistory([]);
+    setCurrent(null);
+    setError(null);
+
+    const loadAll = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // === Checking if he can play  ===
+        let startResp;
+        try {
+          startResp = await startStory(storyId);
+          console.log("[useStoryPlayer.loadAll] startStory:", startResp);
+        } catch (e) {
+          const problem = e?.response?.data;
+          const detail = problem?.detail || e.message || "Unknown error";
+
+          console.warn("[useStoryPlayer.loadAll] startStory failed:", problem);
+
+          if (isMounted.current) {
+            setError(new Error(detail));
+          }
+          return;
+        }
+
+        // === passages===
+        const data = await getPassagesFrom(storyId, null, 999);
+        const passages =
+          data?.passages || data?.items || data?.data?.passages || [];
+
+        if (!isMounted.current) return;
+
+        setAllPassages(passages);
+
+        if (passages.length) {
+          const first =
+            passages.find((p) => (p.type || "").toLowerCase() === "starting") ||
+            passages[0];
+
+          setCurrent(first);
+          setHistory([first]);
+        }
+      } catch (e) {
+        if (!isMounted.current) return;
+        console.error("[useStoryPlayer.loadAll] error:", e);
+        setError(e);
+      } finally {
+        if (!isMounted.current) return;
+        setLoading(false);
+      }
+    };
+
+    loadAll();
+  }, [storyId]);
+
   const mergePassages = useCallback((prev, nextBatch) => {
     const map = new Map(prev.map((p) => [p.id, p]));
     for (const p of nextBatch || []) {
@@ -32,60 +93,6 @@ export function useStoryPlayer(storyId) {
     }
     return Array.from(map.values());
   }, []);
-
-  const loadAll = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      let startResp;
-      try {
-        startResp = await startStory(storyId);
-        console.log("[useStoryPlayer.loadAll] startStory:", startResp);
-      } catch (e) {
-        const problem = e?.response?.data;
-        const detail = problem?.detail || e.message || "Unknown error";
-
-        console.warn("[useStoryPlayer.loadAll] startStory failed:", problem);
-
-        if (isMounted.current) {
-          setError(new Error(detail));
-        }
-        return;
-      }
-
-      const data = await getPassagesFrom(storyId, null, 999);
-      const passages =
-        data?.passages || data?.items || data?.data?.passages || [];
-
-      if (!isMounted.current) return;
-
-      setAllPassages(passages);
-
-      if (passages.length) {
-        const first =
-          passages.find((p) => (p.type || "").toLowerCase() === "starting") ||
-          passages[0];
-
-        setCurrent(first);
-        setHistory([first]);
-      }
-    } catch (e) {
-      if (!isMounted.current) return;
-      console.error("[useStoryPlayer.loadAll] error:", e);
-      setError(e);
-    } finally {
-      if (!isMounted.current) return;
-      setLoading(false);
-    }
-  }, [storyId]);
-
-  useEffect(() => {
-    setAllPassages([]);
-    setHistory([]);
-    setCurrent(null);
-    setError(null);
-    loadAll();
-  }, [storyId, loadAll]);
 
   const fetchNextPassageIfMissing = useCallback(
     async (wantedId) => {
@@ -105,7 +112,6 @@ export function useStoryPlayer(storyId) {
         const hasMore = !!page?.hasMore;
 
         if (!isMounted.current) return null;
-
         if (!batch.length) break;
 
         setAllPassages((prev) => mergePassages(prev, batch));
@@ -141,7 +147,6 @@ export function useStoryPlayer(storyId) {
         await updateStoryProgress(storyId, current.id, choice.id);
 
         const nextId = choice?.nextPassageId || choice?.next_passage_id || null;
-
         console.log("[useStoryPlayer.choose] resolved nextId:", nextId);
 
         if (!nextId) {
@@ -198,7 +203,6 @@ export function useStoryPlayer(storyId) {
     history,
     loading,
     error,
-    reload: loadAll,
     choose,
     isEnded,
     hasMore,

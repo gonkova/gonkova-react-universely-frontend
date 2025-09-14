@@ -11,7 +11,6 @@ export default function StoryReactions({
   initialUserReaction = null,
 }) {
   const { accessToken } = useContext(AuthContext);
-
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const [userReaction, setUserReaction] = useState(initialUserReaction);
@@ -24,52 +23,53 @@ export default function StoryReactions({
     [accessToken, userReaction]
   );
 
-  // --- Load reactions, with optional cache ---
-  const loadReactions = async () => {
-    try {
-      const data = await getStoryDetailsById(storyId);
-      setLikes(data?.likeCount ?? 0);
-      setDislikes(data?.dislikeCount ?? 0);
-      if (data?.userReactionType != null)
-        setUserReaction(data.userReactionType);
-      setError(null);
-    } catch {
-      setError("Failed to load reactions.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // ⚡️ Load reactions only once per story
   useEffect(() => {
-    if (!storyId) return;
-
-    // Load initially
-    loadReactions();
-
-    // Auto-refresh every 30s
-    const interval = setInterval(loadReactions, 30000);
-    return () => clearInterval(interval);
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const data = await getStoryDetailsById(storyId);
+        if (!isMounted) return;
+        setLikes(data?.likeCount ?? 0);
+        setDislikes(data?.dislikeCount ?? 0);
+        setUserReaction(data?.userReactionType ?? null);
+        setError(null);
+      } catch {
+        if (!isMounted) return;
+        setError("Failed to load reactions.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      isMounted = false;
+    };
   }, [storyId]);
 
   const handleReaction = async (reactionType) => {
     if (!canVote || sending) return;
 
-    // Optimistic UI
-    const previousLikes = likes;
-    const previousDislikes = dislikes;
+    const prevLikes = likes;
+    const prevDislikes = dislikes;
+
+    // Optimistic UI update
     setUserReaction(reactionType);
     setLikes(likes + (reactionType === ReactionType.Like ? 1 : 0));
     setDislikes(dislikes + (reactionType === ReactionType.Dislike ? 1 : 0));
     setSending(true);
 
     try {
-      await storyReactions(storyId, reactionType);
-      await loadReactions();
+      // storyReactions should return updated counts
+      const data = await storyReactions(storyId, reactionType);
+      setLikes(data?.likeCount ?? likes);
+      setDislikes(data?.dislikeCount ?? dislikes);
+      setError(null);
     } catch {
       // Rollback on error
       setUserReaction(null);
-      setLikes(previousLikes);
-      setDislikes(previousDislikes);
+      setLikes(prevLikes);
+      setDislikes(prevDislikes);
       setError("Failed to submit reaction. Please try again.");
     } finally {
       setSending(false);
@@ -77,7 +77,6 @@ export default function StoryReactions({
   };
 
   if (loading) return <div className="text-sm text-gray-500">Loading…</div>;
-  if (error) return <div className="text-sm text-red-500">{error}</div>;
 
   return (
     <div className="flex gap-6 items-center">
@@ -101,9 +100,10 @@ export default function StoryReactions({
         👎 {dislikes}
       </button>
 
-      {userReaction != null && (
+      {userReaction && (
         <span className="text-xs text-gray-500">You have already voted.</span>
       )}
+      {error && <div className="text-sm text-red-500">{error}</div>}
     </div>
   );
 }

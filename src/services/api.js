@@ -8,6 +8,40 @@ const api = axios.create({
   withCredentials: false,
 });
 
+// === Debug logging (само в development) ===
+if (process.env.NODE_ENV === "development") {
+  api.interceptors.request.use((config) => {
+    console.log("📤 [API Request]", {
+      method: config.method?.toUpperCase(),
+      url: config.baseURL + config.url,
+      data: config.data,
+      params: config.params,
+      headers: config.headers,
+    });
+    return config;
+  });
+
+  api.interceptors.response.use(
+    (response) => {
+      console.log("📥 [API Response]", {
+        status: response.status,
+        url: response.config.baseURL + response.config.url,
+        data: response.data,
+      });
+      return response;
+    },
+    (error) => {
+      console.error("❌ [API Error]", {
+        url: error.config?.url,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+      return Promise.reject(error);
+    }
+  );
+}
+
 let store = {
   accessToken: null,
   refreshToken: null,

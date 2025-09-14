@@ -1,41 +1,22 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getStoryDetailsById } from "@/services/api";
 import Button from "@/components/ui/Button";
 import StoryReactions from "@/components/StoryReactions";
-import Spinner from "@/components/ui/Spinner";
 
 export default function StoryDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const initialStory = location.state?.story || null;
-  const [story, setStory] = useState(initialStory);
-  const [loading, setLoading] = useState(!initialStory);
-  const [error, setError] = useState(null);
+  // Историята винаги идва от state, когато идваш от списъка
+  const story = location.state?.story || null;
 
-  const fetchStoryDetails = async () => {
-    try {
-      const data = await getStoryDetailsById(id);
-      setStory((prev) => (prev ? { ...prev, ...data } : data));
-      setError(null);
-    } catch {
-      if (!initialStory) setError("Failed to load story.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!id) return;
-    fetchStoryDetails();
-  }, [id]);
-
-  if (loading) return <Spinner />;
-  if (error)
-    return <div className="text-red-500 text-center mt-10">{error}</div>;
-  if (!story) return <div className="text-center mt-10">Story not found.</div>;
+  if (!story) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Story not found. Please go back to the list.
+      </div>
+    );
+  }
 
   const title = story.title ?? story.name ?? "Untitled";
   const addedAt = story.addedAtUtc ?? story.createdAtUtc;
@@ -108,6 +89,8 @@ export default function StoryDetails() {
         <StoryReactions
           storyId={story.id || id}
           initialUserReaction={story.userReactionType ?? null}
+          initialLikes={story.likeCount ?? 0}
+          initialDislikes={story.dislikeCount ?? 0}
         />
       </div>
     </div>
