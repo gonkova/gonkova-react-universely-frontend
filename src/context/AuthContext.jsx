@@ -85,6 +85,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  // ✨ НОВА ФУНКЦИЯ: updateUser за ръчно обновяване на user данни
+  function updateUser(updatedUserData) {
+    setUser(updatedUserData);
+  }
+
   // expose helper за api.js
   useEffect(() => {
     setAuthStore({
@@ -145,6 +150,7 @@ export function AuthProvider({ children }) {
         user,
         loading,
         isAuthenticated,
+        updateUser, // ✨ Експортираме новата функция
       }}
     >
       {children}

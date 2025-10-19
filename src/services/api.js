@@ -184,6 +184,10 @@ export function getCurrentUser() {
   return api.get("/users/me").then((res) => res.data);
 }
 
+export function updateEmail(newEmail) {
+  return api.put("/users/email", { newEmail }).then((res) => res.data);
+}
+
 // === Reactions ===
 
 export const ReactionType = { Like: 1, Dislike: 2 };
